@@ -5,7 +5,6 @@ from typing import Sequence
 from pathlib import Path
 
 import log21
-
 from pypdf import PdfReader, PdfWriter
 
 
@@ -65,7 +64,7 @@ def merge_pdfs_entry_point(
 
 
 if __name__ == '__main__':
-    if sys.platform == "win32":
+    if sys.platform == 'win32':
         import os
         import msvcrt
         msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
