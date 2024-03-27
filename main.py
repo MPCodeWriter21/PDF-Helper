@@ -6,10 +6,7 @@ from pathlib import Path
 
 import log21
 
-try:
-    from PyPDF2 import PdfReader, PdfWriter
-except ImportError:
-    from pypdf import PdfReader, PdfWriter
+from pypdf import PdfReader, PdfWriter
 
 
 def merge_pdfs(
