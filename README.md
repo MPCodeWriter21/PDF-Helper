@@ -6,16 +6,16 @@ A simple python script that helps with doing simple stuff with PDFs.
 Functionalities
 ---------------
 
-[x] Merge PDFs
-[ ] Split PDFs
-[ ] Export PDF pages as image files
-[ ] Remove pages from a PDF
-[ ] Encrypt a PDF
-[ ] Decrypt a PDF
-[ ] Add watermark to a PDF
-[ ] Export images from a PDF
-[ ] Export text from a PDF
-[ ] Export links from a PDF
++ [x] Merge PDFs
++ [ ] Split PDFs
++ [ ] Export PDF pages as image files
++ [ ] Remove pages from a PDF
++ [ ] Encrypt a PDF
++ [ ] Decrypt a PDF
++ [ ] Add watermark to a PDF
++ [ ] Export images from a PDF
++ [ ] Export text from a PDF
++ [ ] Export links from a PDF
 
 Usage
 -----
