@@ -47,6 +47,10 @@ def merge_pdfs_entry_point(
     if output_path.exists() and not force:
         log21.critical('Output file already exists.')
         sys.exit(1)
+    input_paths = tuple(path.absolute() for path in input_paths)
+    if output_path.absolute() in input_paths:
+        log21.critical('Input and output files cannot be the same.')
+        sys.exit(1)
     if verbose:
         log21.basic_config(level=log21.INFO)
 
@@ -130,6 +134,9 @@ def remove_pages_entry_point(
         sys.exit(1)
     if output_path.exists() and not force:
         log21.critical('Output file already exists.')
+        sys.exit(1)
+    if input_path.absolute() == output_path.absolute():
+        log21.critical('Input and output files cannot be the same.')
         sys.exit(1)
     if verbose:
         log21.basic_config(level=log21.INFO)
