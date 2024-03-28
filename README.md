@@ -4,8 +4,8 @@ PDF-To-Image
 A simple python script that helps with doing simple stuff with PDFs. It is going to
 become a simple python package after `main.py` reaches 1000 lines of code.
 
-Functionalities
----------------
+Features
+--------
 
 + [x] Merge PDFs
 + [ ] Split PDFs
@@ -17,6 +17,10 @@ Functionalities
 + [ ] Export images from a PDF
 + [ ] Export text from a PDF
 + [ ] Export links from a PDF
+
+If you want any other feature to be added, feel free to open an [issue](https://github.com/MPCodeWriter21/PDF-To-Image/issues)
+or fork the repo and make a [pull request](https://github.com/MPCodeWriter21/PDF-To-Image/pulls)
+after adding your contribution.
 
 Usage
 -----
