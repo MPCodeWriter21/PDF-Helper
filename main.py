@@ -71,20 +71,25 @@ def merge_pdfs_entry_point(
 def remove_pages(
     input_file: str | Path | io.TextIOWrapper, pages_to_remove: Collection[int],
     output_stream: io.BufferedWriter
-):
+) -> int:
     """Remove pages from a PDF file.
 
     :param input_file: PDF file to remove pages from.
     :param pages_to_remove: List of pages to remove.
     :param output_stream: Output stream to write to.
+    :return: Number of pages removed.
     """
+    number_of_removed_pages = 0
     writer = PdfWriter()
     reader = PdfReader(input_file)
     for i, page in enumerate(reader.pages):
         if i + 1 not in pages_to_remove:
             log21.info(f'Adding page {i + 1}...', end='\r')
             writer.add_page(page)  # type: ignore
+        else:
+            number_of_removed_pages += 1
     writer.write(output_stream)
+    return number_of_removed_pages
 
 
 def parse_pages(pages: str):
@@ -136,14 +141,20 @@ def remove_pages_entry_point(
         sys.exit(1)
 
     log21.info(
-        'Removing page' + (
-            's ' + ', '.join(str(page) for page in pages_to_remove_[:-1]) +
-            ' and' if len(pages_to_remove_) > 2 else ''
+        f'Removing {len(pages_to_remove_)} page' + (
+            's: ' + ', '.join(str(page) for page in pages_to_remove_[:-1]) +
+            ' and' if len(pages_to_remove_) > 2 else ':'
         ) + f' {pages_to_remove_[-1]} from `{input_path}`'
     )
     try:
         with open(output_path, 'wb') as output_file:
-            remove_pages(input_path, pages_to_remove_, output_file)
+            number_of_removed_pages = remove_pages(
+                input_path, pages_to_remove_, output_file
+            )
+            log21.info(
+                f'Removed {number_of_removed_pages} page' +
+                ('s' if number_of_removed_pages > 1 else '') + '!'
+            )
     except PermissionError:
         log21.critical(
             f'Cannot write to output file `{output_path}`.\n'
