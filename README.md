@@ -23,9 +23,14 @@ Usage
 
 ### Install requirements
 
-Install the most recent version of python for your operating system. Visit [python.org](https://python.org)
++ Install the most recent version of python for your operating system. Visit [python.org](https://python.org)
 
-Use pip to install the dependencies:
++ Clone the repo:
+```bash
+git clone https://GitHub.com/MPCodeWriter21/PDF-Helper
+```
+
++ Use pip to install the dependencies:
 ```bash
 pip install -r requirements.txt
 ```
