@@ -59,6 +59,7 @@ About
 -----
 
 Author: [CodeWriter21](https://github.com/MPCodeWriter21)
+
 GitHub: [MPCodeWriter21/PDF-To-Image](https://github.com/MPCodeWriter21/PDF-To-Image)
 
 License
