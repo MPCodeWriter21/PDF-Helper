@@ -8,27 +8,25 @@ from pathlib import Path
 
 import log21
 import pypdfium2 as pdfium
-from pypdf import PdfReader, PdfWriter
+from pypdfium2 import PdfDocument
 from log21.Colors import RED, GREEN, RESET
 
 
 def merge_pdfs(
     input_files: Sequence[str | Path | io.TextIOWrapper],
-    output_stream: io.BufferedWriter
+    output_stream: str | Path | io.BytesIO | io.BufferedWriter
 ):
     """Merge PDF files.
 
     :param input_files: List of PDF files to concatenate.
     :param output_stream: Output stream to write to.
     """
-    writer = PdfWriter()
+    writer = PdfDocument.new()
     for input_file in input_files:
         log21.info(f'Adding {input_file}...')
-        reader = PdfReader(input_file)
-        for i, page in enumerate(reader.pages):
-            log21.info(f'Adding page {i + 1}...', end='\r')
-            writer.add_page(page)  # type: ignore
-    writer.write(output_stream)
+        reader = PdfDocument(input_file)
+        writer.import_pages(reader)
+    writer.save(output_stream)
 
 
 def merge_pdfs_entry_point(
@@ -51,8 +49,7 @@ def merge_pdfs_entry_point(
     if output_path.exists() and not force:
         log21.critical('Output file already exists.')
         sys.exit(1)
-    input_paths = tuple(path.absolute() for path in input_paths)
-    if output_path.absolute() in input_paths:
+    if output_path.absolute() in (path.absolute() for path in input_paths):
         log21.critical('Input and output files cannot be the same.')
         sys.exit(1)
     if verbose:
@@ -77,27 +74,24 @@ def merge_pdfs_entry_point(
 
 
 def remove_pages(
-    input_file: str | Path | io.TextIOWrapper, pages_to_remove: Collection[int],
-    output_stream: io.BufferedWriter
+    input_file: str | Path | io.BytesIO | io.TextIOWrapper,
+    pages_to_remove: Collection[int],
+    output_stream: str | Path | io.BytesIO | io.BufferedWriter
 ) -> int:
     """Remove pages from a PDF file.
 
     :param input_file: PDF file to remove pages from.
-    :param pages_to_remove: List of pages to remove.
+    :param pages_to_remove: List of pages to remove. A one based collection of indices.
     :param output_stream: Output stream to write to.
     :return: Number of pages removed.
     """
-    number_of_removed_pages = 0
-    writer = PdfWriter()
-    reader = PdfReader(input_file)
-    for i, page in enumerate(reader.pages):
-        if i + 1 not in pages_to_remove:
-            log21.info(f'Adding page {i + 1}...', end='\r')
-            writer.add_page(page)  # type: ignore
-        else:
-            number_of_removed_pages += 1
-    writer.write(output_stream)
-    return number_of_removed_pages
+    writer = PdfDocument.new()
+    reader = PdfDocument(input_file)
+    pages_to_remove = tuple(map(lambda i: i - 1, pages_to_remove))
+    pages_to_add = [i for i in range(len(reader)) if i not in pages_to_remove]
+    writer.import_pages(reader, pages_to_add)
+    writer.save(output_stream, version=reader.get_version())
+    return len(reader) - len(pages_to_add)
 
 
 def parse_pages(pages: str):
