@@ -273,14 +273,18 @@ def pdf_to_image_entry_point(
 
 
 if __name__ == '__main__':
-    if sys.platform == 'win32':
-        import msvcrt
-        msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
-    log21.basic_config(level=log21.ERROR)
-    log21.argumentify(
-        {
-            'merge': merge_pdfs_entry_point,
-            'remove-pages': remove_pages_entry_point,
-            'to-image': pdf_to_image_entry_point
-        }
-    )
+    try:
+        if sys.platform == 'win32':
+            import msvcrt
+            msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
+        log21.basic_config(level=log21.ERROR)
+        log21.argumentify(
+            {
+                'merge': merge_pdfs_entry_point,
+                'remove-pages': remove_pages_entry_point,
+                'to-image': pdf_to_image_entry_point
+            }
+        )
+    except KeyboardInterrupt:
+        log21.critical('\nKeyboardInterrupt: Exiting...')
+        sys.exit(1)
