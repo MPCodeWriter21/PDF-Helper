@@ -9,7 +9,7 @@ Features
 
 + [x] Merge PDFs
 + [ ] Split PDFs
-+ [ ] Export PDF pages as image files
++ [x] Export PDF pages as image files
 + [x] Remove pages from a PDF
 + [ ] Encrypt a PDF
 + [ ] Decrypt a PDF
@@ -47,6 +47,19 @@ python3 main.py merge -i <input_file_1> <input_file_2>... <input_file_n> -o <out
 
 # E.g. Merge PDFs 1, 2 and 3 into a new PDF
 python3 main.py merge -i 1.pdf 2.pdf 3.pdf -o new.pdf
+
+
+### Export PDF pages as image files
+
+Export PDF pages as image files:
+```bash
+python3 main.py export-pages -i <input_file> -o <output_folder> -p <page_number_1>,<page_number_2>,...,<page_number_n> -s <scale_factor>
+
+# E.g. Export pages 1, 2, 3 and 6 from a PDF with scale factor 1
+python3 main.py export-pages -i 1.pdf -o images -p 1-3,6 -s 1
+
+# E.g. Export all pages from a PDF with scale 2
+python3 main.py export-pages -i my-pdf.pdf -o my-images
 ```
 
 ### Remove pages from a PDF

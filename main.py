@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 import io
+import os
 import sys
-from typing import Sequence, Collection
+import importlib.util
+from typing import Optional, Sequence, Collection
 from pathlib import Path
 
 import log21
+import pypdfium2 as pdfium
 from pypdf import PdfReader, PdfWriter
+from log21.Colors import RED, GREEN, RESET
 
 
 def merge_pdfs(
@@ -171,15 +175,112 @@ def remove_pages_entry_point(
         sys.exit(1)
 
 
+def pdf_to_image(
+    input_file: str | Path,
+    output_directory: str | Path,
+    pages_to_convert: Optional[Collection[int]] = None,
+    scale: int = 2
+):
+    """Convert a PDF file to a series of images.
+
+    :param input_file: PDF file to convert.
+    :param output_directory: Directory to write images to.
+    :param scale: Scale of each image.
+    """
+    if isinstance(input_file, str):
+        input_file = Path(input_file)
+    if isinstance(output_directory, str):
+        output_directory = Path(output_directory)
+    if not output_directory.exists():
+        output_directory.mkdir(parents=True)
+    pdf = pdfium.PdfDocument(input_file)
+    name = input_file.name.rsplit('.', maxsplit=1)[0]
+    length = len(str(len(pdf)))
+    if not pages_to_convert:
+        for i, page in enumerate(pdf):
+            i = i + 1
+            log21.info(f'Converting page {i}...', end='\r')
+            image = page.render(scale=scale).to_pil()
+            image.save(output_directory / f'{name}-{i:0>{length}}.png')
+    else:
+        for i, page in enumerate(pdf):
+            i = i + 1
+            if i not in pages_to_convert:
+                continue
+            log21.info(f'Converting page {i}...', end='\r')
+            image = page.render(scale=scale).to_pil()
+            image.save(output_directory / f'{name}-{i:0>{length}}.png')
+
+
+def pdf_to_image_entry_point(
+    input_path: Path,
+    output_directory: Path,
+    /,
+    pages_to_convert: Optional[str] = None,
+    scale: int = 2,
+    force: bool = False,
+    verbose: bool = False
+):
+    """Convert a PDF file to a series of images.
+
+    :param input_path: Path to PDF file to convert.
+    :param output_directory: Path to directory to write images to.
+    :param pages_to_convert: Comma-separated list of pages to convert. Example:
+        '1-5,7,9-11'
+    :param scale: Scale of each image.
+    :param force: Force overwrite of output directory.
+    :param verbose: Print verbose output.
+    """
+    if importlib.util.find_spec('PIL') is None:
+        log21.error('PIL must be installed to use this feature.')
+        cmd = 'python -m pip install "Pillow>=10.1.0"'
+        answer = log21.input(
+            f'[{RED}?{RESET}] Do you want to install it? ({GREEN}{cmd}{RESET})'
+        )
+        if answer.lower().startswith('y'):
+            log21.print(f'[{GREEN}+{RESET}] Installing Pillow...')
+            os.system(cmd)
+        sys.exit(1)
+    if not input_path.exists():
+        log21.critical(f'Input file `{input_path}` does not exist.')
+        sys.exit(1)
+    if output_directory.exists() and not output_directory.is_dir():
+        log21.critical(f'Output path `{output_directory}` is not a directory.')
+        sys.exit(1)
+    if output_directory.exists() and os.listdir(output_directory) and not force:
+        log21.critical(f'Output directory `{output_directory}` already exists.')
+        sys.exit(1)
+    if verbose:
+        log21.basic_config(level=log21.INFO)
+
+    pages_to_convert_ = None
+    if pages_to_convert:
+        try:
+            pages_to_convert_ = parse_pages(pages_to_convert)
+        except ValueError:
+            log21.critical(f'Invalid pages string: `{pages_to_convert}`')
+            sys.exit(1)
+        log21.info(
+            f'Converting {len(pages_to_convert_)} page' +
+            ('s' if len(pages_to_convert_) > 2 else '') +
+            f' from `{input_path}` to image...'
+        )
+    else:
+        log21.info(f'Converting `{input_path}` to images...')
+
+    pdf_to_image(input_path, output_directory, pages_to_convert_, scale)
+    log21.info('\rDone!')
+
+
 if __name__ == '__main__':
     if sys.platform == 'win32':
-        import os
         import msvcrt
         msvcrt.setmode(sys.stdout.fileno(), os.O_BINARY)
     log21.basic_config(level=log21.ERROR)
     log21.argumentify(
         {
             'merge': merge_pdfs_entry_point,
-            'remove-pages': remove_pages_entry_point
+            'remove-pages': remove_pages_entry_point,
+            'to-image': pdf_to_image_entry_point
         }
     )
