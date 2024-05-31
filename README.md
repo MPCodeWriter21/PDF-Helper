@@ -1,5 +1,5 @@
-PDF-To-Image
-============
+PDF-Helper
+==========
 
 A simple python script that helps with doing simple stuff with PDFs. It is going to
 become a simple python package after `main.py` reaches 1000 lines of code.
