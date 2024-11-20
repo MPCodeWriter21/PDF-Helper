@@ -30,9 +30,9 @@ def merge_pdfs(
 
 
 def merge_pdfs_entry_point(
+    input_paths: Sequence[Path],
     output_path: Path,
     /,
-    *input_paths: Path,
     force: bool = False,
     verbose: bool = False
 ):
