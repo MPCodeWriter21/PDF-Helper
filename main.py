@@ -266,6 +266,126 @@ def pdf_to_image_entry_point(
     log21.info('\rDone!')
 
 
+def extract_text(
+    input_file: str | Path | io.BytesIO | io.TextIOWrapper,
+    pages_to_extract_from: Optional[Collection[int]] = None,
+    max_number_of_characters: int = -1
+) -> str:
+    """Extract text from a PDF file.
+
+    :param input_file: PDF file to extract text from.
+    :param pages_to_extract_from: Pages to extract text from.
+    :param max_number_of_characters: Maximum number of characters to extract in total.
+    :return: Extracted text.
+    """
+    pdf = pdfium.PdfDocument(input_file)
+    text = ''
+    if pages_to_extract_from:
+        pages_to_extract_from = sorted(pages_to_extract_from)
+        if pages_to_extract_from[0] < 1:
+            log21.critical('Pages must be >= 1')
+            sys.exit(1)
+        if pages_to_extract_from[-1] > len(pdf):
+            log21.critical(
+                f'Page {pages_to_extract_from[-1]} does not exist in `{input_file}`'
+            )
+            sys.exit(1)
+        log21.info(
+            f'Extracting text from {len(pages_to_extract_from)} page' +
+            ('s' if len(pages_to_extract_from) > 1 else '') + f' from `{input_file}`...'
+        )
+        count = max_number_of_characters
+        for i, page in enumerate(pdf):
+            i = i + 1
+            if i not in pages_to_extract_from:
+                continue
+            log21.info(f'Extracting text from page {i}...', end='\r')
+            text += page.get_textpage().get_text_range(count=count, force_this=True)
+            if count == 0:
+                break
+            if count > 0:
+                count = max_number_of_characters - len(text)
+    else:
+        count = max_number_of_characters
+        for page in pdf:
+            text += page.get_textpage().get_text_range(count=count, force_this=True)
+            if count == 0:
+                break
+            if count > 0:
+                count = max_number_of_characters - len(text)
+            text += '\n'
+    log21.info('\rDone!')
+    return text
+
+
+def extract_text_entry_point(
+    input_path: Path,
+    /,
+    output_path: Optional[Path] = None,
+    pages_to_extract_from: Optional[str] = None,
+    max_number_of_characters: int = -1,
+    characters_to_split: int = 0,
+    force: bool = False,
+    verbose: bool = False
+):
+    """Extract text from a PDF file.
+
+    :param input_path: Path to PDF file to extract text from.
+    :param output_path: Path to write extracted text to. (Writes to stdout if not
+        provided)
+    :param pages_to_extract_from: Pages to extract text from. Example: '1-5,7,9-11'
+    :param max_number_of_characters: Maximum number of characters to extract in total.
+    :param characters_to_split: Create a new file if the number of characters in the
+        extracted text exceeds this value.
+    :param force: Force overwrite of output file.
+    :param verbose: Print verbose output.
+    """
+    if not input_path.exists():
+        log21.critical(f'Input file `{input_path}` does not exist.')
+        sys.exit(1)
+    if output_path and output_path.exists() and not force:
+        log21.critical(f'Output `{output_path}` already exists.')
+        sys.exit(1)
+    if verbose:
+        log21.basic_config(level=log21.INFO)
+
+    pages_to_extract_from_ = None
+    if pages_to_extract_from:
+        try:
+            pages_to_extract_from_ = parse_pages(pages_to_extract_from)
+        except ValueError:
+            log21.critical(f'Invalid pages string: `{pages_to_extract_from}`')
+            sys.exit(1)
+        log21.info(
+            f'Extracting text from {len(pages_to_extract_from_)} page' +
+            ('s' if len(pages_to_extract_from_) > 2 else '') +
+            f' from `{input_path}`...'
+        )
+    else:
+        log21.info(f'Extracting text from `{input_path}`...')
+
+    text = extract_text(input_path, pages_to_extract_from_, max_number_of_characters)
+    if output_path:
+        if not characters_to_split:
+            with output_path.open('w', encoding='utf-8') as file:
+                file.write(text)
+            return
+        i = 1
+        stem = output_path.stem
+        while len(text) > characters_to_split:
+            output_path_ = output_path.with_name(stem + f'_{i}{output_path.suffix}')
+            with output_path_.open('w', encoding='utf-8') as file:
+                file.write(text[:characters_to_split])
+            text = text[characters_to_split:]
+            output_path = output_path_
+            i += 1
+        with output_path.open('w', encoding='utf-8') as file:
+            file.write(text)
+    else:
+        print(text)
+    log21.info('\rDone!')
+
+
 if __name__ == '__main__':
     try:
         if sys.platform == 'win32':
@@ -276,7 +396,8 @@ if __name__ == '__main__':
             {
                 'merge': merge_pdfs_entry_point,
                 'remove-pages': remove_pages_entry_point,
-                'to-image': pdf_to_image_entry_point
+                'to-image': pdf_to_image_entry_point,
+                'extract-text': extract_text_entry_point
             }
         )
     except KeyboardInterrupt:

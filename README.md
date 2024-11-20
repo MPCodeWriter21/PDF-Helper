@@ -15,7 +15,7 @@ Features
 + [ ] Decrypt a PDF
 + [ ] Add watermark to a PDF
 + [ ] Export images from a PDF
-+ [ ] Export text from a PDF
++ [x] Export text from a PDF
 + [ ] Export links from a PDF
 + [ ] Export one or multiple images as a PDF file
 
@@ -31,11 +31,13 @@ Usage
 + Install the most recent version of python for your operating system. Visit [python.org](https://python.org)
 
 + Clone the repo:
+
 ```bash
 git clone https://GitHub.com/MPCodeWriter21/PDF-Helper
 ```
 
 + Use pip to install the dependencies:
+
 ```bash
 pip install -r requirements.txt
 ```
@@ -43,6 +45,7 @@ pip install -r requirements.txt
 ### Merge PDFs
 
 Merge multiple PDFs into one PDF:
+
 ```bash
 python3 main.py merge -i <input_file_1> <input_file_2>... <input_file_n> -o <output_file>
 
@@ -66,6 +69,7 @@ python3 main.py export-pages -i my-pdf.pdf -o my-images
 ### Remove pages from a PDF
 
 Remove pages from a PDF:
+
 ```bash
 python3 main.py remove-pages -i <input_file> -o <output_file> -p <page_number_1>,<page_number_2>,...,<page_number_n>
 
@@ -85,4 +89,4 @@ License
 
 This project is licensed under the MIT License.
 
-see the [LICENSE](LICENSE)
+See the [LICENSE](LICENSE)
