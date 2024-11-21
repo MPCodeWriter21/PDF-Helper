@@ -8,7 +8,8 @@ from pathlib import Path
 
 import log21
 import pypdfium2 as pdfium
-from pypdfium2 import PdfDocument
+from PIL import Image
+from pypdfium2 import PdfImage, PdfBitmap, PdfMatrix, PdfDocument
 from log21.Colors import RED, GREEN, RESET
 
 
@@ -386,6 +387,80 @@ def extract_text_entry_point(
     log21.info('\rDone!')
 
 
+def image_to_pdf(
+    input_files: Sequence[str | Path | io.TextIOWrapper],
+    output_stream: str | Path | io.BytesIO | io.BufferedWriter
+):
+    """Convert images to a PDF file.
+
+    :param input_files: List of images to convert.
+    :param output_stream: Output stream to write to.
+    """
+    writer = PdfDocument.new()
+    for input_file in input_files:
+        log21.info(f'Adding {input_file}...')
+        # Open the image file
+        image = Image.open(input_file)
+        # Create a bitmap from the image
+        bitmap = PdfBitmap.from_pil(image)
+        # Create a PdfImage object from the bitmap
+        pdf_image = PdfImage.new(writer)
+        pdf_image.set_bitmap(bitmap)
+        matrix = pdfium.PdfMatrix().scale(bitmap.width, bitmap.height)
+        pdf_image.set_matrix(matrix)
+        # Create a new page and insert the PdfImage object
+        page = writer.new_page(bitmap.width, bitmap.height)
+        page.insert_obj(pdf_image)
+        page.gen_content()
+        # Close the objects
+        page.close()
+        pdf_image.close()
+        bitmap.close()
+        image.close()
+    writer.save(output_stream)
+
+
+def image_to_pdf_entry_point(
+    input_paths: Sequence[Path],
+    output_path: Path,
+    /,
+    force: bool = False,
+    verbose: bool = False
+):
+    """Convert images to a PDF file.
+
+    :param input_paths: List of images to convert.
+    :param output_path: Path to write PDF file to.
+    :param force: Force overwrite of output file.
+    :param verbose: Print verbose output.
+    """
+    if len(input_paths) < 1:
+        log21.critical('Must provide at least one input file.')
+        sys.exit(1)
+    if output_path.exists() and not force:
+        log21.critical('Output file already exists.')
+        sys.exit(1)
+    if verbose:
+        log21.basic_config(level=log21.INFO)
+
+    for path in input_paths:
+        if not path.exists():
+            log21.critical(f'Input file `{path}` does not exist.')
+            sys.exit(1)
+
+    log21.info(f'Converting {len(input_paths)} images to `{output_path}`...')
+    try:
+        with open(output_path, 'wb') as output_file:
+            image_to_pdf(input_paths, output_file)
+    except PermissionError:
+        log21.critical(
+            f'Cannot write to output file `{output_path}`.\n'
+            'Check the file permissions and close any applications that may be using '
+            'the file, then try again.'
+        )
+        sys.exit(1)
+
+
 if __name__ == '__main__':
     try:
         if sys.platform == 'win32':
@@ -397,7 +472,8 @@ if __name__ == '__main__':
                 'merge': merge_pdfs_entry_point,
                 'remove-pages': remove_pages_entry_point,
                 'to-image': pdf_to_image_entry_point,
-                'extract-text': extract_text_entry_point
+                'extract-text': extract_text_entry_point,
+                'image-to-pdf': image_to_pdf_entry_point
             }
         )
     except KeyboardInterrupt:

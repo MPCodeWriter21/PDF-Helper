@@ -161,4 +161,5 @@ cython_debug/
 
 *.pdf
 *.png
+*.jpg
 *.txt

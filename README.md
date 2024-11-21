@@ -17,7 +17,7 @@ Features
 + [ ] Export images from a PDF
 + [x] Export text from a PDF
 + [ ] Export links from a PDF
-+ [ ] Export one or multiple images as a PDF file
++ [x] Export one or multiple images as a PDF file
 
 If you want any other feature to be added, feel free to open an [issue](https://github.com/MPCodeWriter21/PDF-To-Image/issues)
 or fork the repo and make a [pull request](https://github.com/MPCodeWriter21/PDF-To-Image/pulls)
