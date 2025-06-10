@@ -38,3 +38,12 @@ order_by_type = true
 recursive = true
 wrap-summaries = 88
 wrap-descriptions = 88
+
+[tool.ruff]
+show-fixes = true
+exclude = ["migrations"]
+target-version = "py38"
+line-length = 88
+
+[tool.ruff.lint]
+extend-select = ["C4", "SIM", "TCH"]
