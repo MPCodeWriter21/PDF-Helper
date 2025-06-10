@@ -1,4 +1,5 @@
-#!/usr/bin/env python3
+#!/usr/bin python3
+
 import io
 import os
 import sys
@@ -9,7 +10,7 @@ from pathlib import Path
 import log21
 import pypdfium2 as pdfium
 from PIL import Image
-from pypdfium2 import PdfImage, PdfBitmap, PdfMatrix, PdfDocument
+from pypdfium2 import PdfImage, PdfBitmap, PdfDocument
 from log21.Colors import RED, GREEN, RESET
 
 
