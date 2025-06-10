@@ -89,7 +89,7 @@ def remove_pages(
     """
     writer = PdfDocument.new()
     reader = PdfDocument(input_file)
-    pages_to_remove = tuple(map(lambda i: i - 1, pages_to_remove))
+    pages_to_remove = tuple((i - 1 for i in pages_to_remove))
     pages_to_add = [i for i in range(len(reader)) if i not in pages_to_remove]
     writer.import_pages(reader, pages_to_add)
     writer.save(output_stream, version=reader.get_version())
@@ -124,8 +124,8 @@ def remove_pages_entry_point(
 
     :param input_path: Path to PDF file to remove pages from.
     :param output_path: Path to write PDF file to.
-    :param pages_to_remove: Comma-separated list of pages to remove. Example:
-        '1-5,7,9-11'
+    :param pages_to_remove: Comma-separated list of pages to remove.
+        Example: '1-5,7,9-11'
     :param force: Force overwrite of output file.
     :param verbose: Print verbose output.
     """
@@ -221,8 +221,8 @@ def pdf_to_image_entry_point(
 
     :param input_path: Path to PDF file to convert.
     :param output_directory: Path to directory to write images to.
-    :param pages_to_convert: Comma-separated list of pages to convert. Example:
-        '1-5,7,9-11'
+    :param pages_to_convert: Comma-separated list of pages to convert.
+        Example: '1-5,7,9-11'
     :param scale: Scale of each image.
     :param force: Force overwrite of output directory.
     :param verbose: Print verbose output.
