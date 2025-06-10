@@ -7,17 +7,18 @@ become a simple python package after `main.py` reaches 1000 lines of code.
 Features
 --------
 
-+ [x] Merge PDFs
-+ [x] Split PDFs
-+ [x] Export PDF pages as image files
-+ [x] Remove pages from a PDF
++ [x] **Merge PDFs**: Merge multiple PDFs into one PDF
++ [x] **Split PDFs**: Split a PDF into multiple PDFs, each containing a range of pages from
+      the original PDF
++ [x] **Export as image**: Export designated pages from a PDF as image files
++ [x] **Remove pages**: Remove designated pages from a PDF
 + [ ] Encrypt a PDF
 + [ ] Decrypt a PDF
 + [ ] Add watermark to a PDF
-+ [ ] Export images from a PDF
-+ [x] Export text from a PDF
-+ [ ] Export links from a PDF
-+ [x] Export one or multiple images as a PDF file
++ [ ] Extract images from a PDF
++ [x] **Extract text**: Export text from a PDF file and optionally save it to a text file
++ [ ] Extract links from a PDF
++ [x] **Image to PDF**: Export one or multiple images as a PDF file
 
 If you want any other feature to be added, feel free to open an [issue](https://github.com/MPCodeWriter21/PDF-To-Image/issues)
 or fork the repo and make a [pull request](https://github.com/MPCodeWriter21/PDF-To-Image/pulls)
@@ -123,6 +124,14 @@ About
 Author: [CodeWriter21](https://github.com/MPCodeWriter21)
 
 GitHub: [MPCodeWriter21/PDF-To-Image](https://github.com/MPCodeWriter21/PDF-To-Image)
+
+Donations
+---------
+
+Your donations are very welcome: [nowpayments.io](https://nowpayments.io/donation/MehradP21)
+
+You can also consider donating a
+[Star](https://github.com/MPCodeWriter21/PDF-Helper) to the repo.
 
 License
 -------
