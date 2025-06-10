@@ -8,7 +8,7 @@ Features
 --------
 
 + [x] Merge PDFs
-+ [ ] Split PDFs
++ [x] Split PDFs
 + [x] Export PDF pages as image files
 + [x] Remove pages from a PDF
 + [ ] Encrypt a PDF
@@ -51,6 +51,21 @@ python3 main.py merge -i <input_file_1> <input_file_2>... <input_file_n> -o <out
 
 # E.g. Merge PDFs 1, 2 and 3 into a new PDF
 python3 main.py merge -i 1.pdf 2.pdf 3.pdf -o new.pdf
+```
+
+### Split PDFs
+
+Split a PDF into multiple PDFs, each containing a range of pages:
+
+```bash
+python3 main.py split -i <input_file> -o <output_folder> -s <split_point_1>,<split_point_2>
+
+# E.g. Split a PDF into three PDFs, one with pages 1-10, the second with pages 11-20 and
+# the third with pages 21-end
+python3 main.py split -i my-pdf.pdf -o my-split-pdfs -s 10,20
+
+# E.g. Split a PDF into PDFs each containing one page
+python3 main.py split -i my-pdf.pdf -o my-split-pdfs  # No need to specify split points
 ```
 
 ### Export PDF pages as image files

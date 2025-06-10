@@ -462,6 +462,103 @@ def image_to_pdf_entry_point(
         sys.exit(1)
 
 
+def split_pdf(
+    input_file: str | Path | io.BytesIO | io.TextIOWrapper,
+    output_directory: str | Path,
+    split_points: Optional[Collection[int]] = None
+) -> int:
+    """Split a PDF file into multiple files.
+
+    :param input_file: PDF file to split.
+    :param output_directory: Directory to write split files to.
+    :param split_points: Pages to split. If None, splits every page into a separate
+        file.
+    :return: Number of pages split.
+    """
+    if isinstance(input_file, str):
+        input_file = Path(input_file)
+    if isinstance(output_directory, str):
+        output_directory = Path(output_directory)
+    if not output_directory.exists():
+        output_directory.mkdir(parents=True)
+
+    pdf = pdfium.PdfDocument(input_file)
+    if not split_points:
+        split_points = range(1, len(pdf) - 1)
+    split_points = [0] + sorted(set(split_points)) + [len(pdf)]
+
+    for i in range(len(split_points) - 1):
+        start = split_points[i]
+        end = split_points[i + 1]
+        if start < 0 or end > len(pdf):
+            log21.warning(
+                f'Split points {start + 1} to {end} are out of bounds for '
+                f'input file `{input_file}`.'
+            )
+            continue
+
+        log21.info(f'Splitting pages {start + 1} to {end}...')
+        writer = PdfDocument.new()
+        writer.import_pages(pdf, range(start, end))
+        output_file = output_directory / f'{input_file.stem}_part_{i + 1}.pdf'
+        try:
+            writer.save(output_file)
+            log21.info(f'Saved split file to {output_file}')
+        except PermissionError:
+            log21.critical(
+                f'Cannot write to output file `{output_file}`.\n'
+                'Check the file permissions and close any applications that may be '
+                'using the file, then try again.'
+            )
+            sys.exit(1)
+        finally:
+            writer.close()
+
+    return len(split_points) - 1
+
+
+def split_pdf_entry_point(
+    input_path: Path,
+    output_directory: Path,
+    /,
+    split_points: Optional[str] = None,
+    force: bool = False,
+    verbose: bool = False
+):
+    """Split a PDF file into multiple files.
+
+    :param input_path: Path to PDF file to split.
+    :param output_directory: Path to directory to write split files to.
+    :param split_points: Comma-separated list of pages to split. Example: '5,7,9'
+    :param force: Force overwrite of output directory.
+    :param verbose: Print verbose output.
+    """
+    if not input_path.exists():
+        log21.critical(f'Input file `{input_path}` does not exist.')
+        sys.exit(1)
+    if output_directory.exists() and not output_directory.is_dir():
+        log21.critical(f'Output path `{output_directory}` is not a directory.')
+        sys.exit(1)
+    if output_directory.exists() and os.listdir(output_directory) and not force:
+        log21.critical(f'Output directory `{output_directory}` already exists.')
+        sys.exit(1)
+    if verbose:
+        log21.basic_config(level=log21.INFO)
+
+    split_points_ = None
+    if split_points:
+        try:
+            split_points_ = parse_pages(split_points)
+        except ValueError:
+            log21.critical(f'Invalid pages string: `{split_points}`')
+            sys.exit(1)
+
+    log21.info(f'Splitting `{input_path}`...')
+    number_of_pdfs = split_pdf(input_path, output_directory, split_points_)
+    if number_of_pdfs > 1:
+        log21.info(f'Split {input_path} to {number_of_pdfs} PDF files!')
+
+
 if __name__ == '__main__':
     try:
         if sys.platform == 'win32':
@@ -474,7 +571,8 @@ if __name__ == '__main__':
                 'remove-pages': remove_pages_entry_point,
                 'to-image': pdf_to_image_entry_point,
                 'extract-text': extract_text_entry_point,
-                'image-to-pdf': image_to_pdf_entry_point
+                'image-to-pdf': image_to_pdf_entry_point,
+                'split': split_pdf_entry_point
             }
         )
     except KeyboardInterrupt:
