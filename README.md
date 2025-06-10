@@ -7,17 +7,18 @@ become a simple python package after `main.py` reaches 1000 lines of code.
 Features
 --------
 
-+ [x] Merge PDFs
-+ [ ] Split PDFs
-+ [x] Export PDF pages as image files
-+ [x] Remove pages from a PDF
++ [x] **Merge PDFs**: Merge multiple PDFs into one PDF
++ [x] **Split PDFs**: Split a PDF into multiple PDFs, each containing a range of pages from
+      the original PDF
++ [x] **Export as image**: Export designated pages from a PDF as image files
++ [x] **Remove pages**: Remove designated pages from a PDF
 + [ ] Encrypt a PDF
 + [ ] Decrypt a PDF
 + [ ] Add watermark to a PDF
-+ [ ] Export images from a PDF
-+ [x] Export text from a PDF
-+ [ ] Export links from a PDF
-+ [x] Export one or multiple images as a PDF file
++ [ ] Extract images from a PDF
++ [x] **Extract text**: Export text from a PDF file and optionally save it to a text file
++ [ ] Extract links from a PDF
++ [x] **Image to PDF**: Export one or multiple images as a PDF file
 
 If you want any other feature to be added, feel free to open an [issue](https://github.com/MPCodeWriter21/PDF-To-Image/issues)
 or fork the repo and make a [pull request](https://github.com/MPCodeWriter21/PDF-To-Image/pulls)
@@ -51,6 +52,21 @@ python3 main.py merge -i <input_file_1> <input_file_2>... <input_file_n> -o <out
 
 # E.g. Merge PDFs 1, 2 and 3 into a new PDF
 python3 main.py merge -i 1.pdf 2.pdf 3.pdf -o new.pdf
+```
+
+### Split PDFs
+
+Split a PDF into multiple PDFs, each containing a range of pages:
+
+```bash
+python3 main.py split -i <input_file> -o <output_folder> -s <split_point_1>,<split_point_2>
+
+# E.g. Split a PDF into three PDFs, one with pages 1-10, the second with pages 11-20 and
+# the third with pages 21-end
+python3 main.py split -i my-pdf.pdf -o my-split-pdfs -s 10,20
+
+# E.g. Split a PDF into PDFs each containing one page
+python3 main.py split -i my-pdf.pdf -o my-split-pdfs  # No need to specify split points
 ```
 
 ### Export PDF pages as image files
@@ -108,6 +124,14 @@ About
 Author: [CodeWriter21](https://github.com/MPCodeWriter21)
 
 GitHub: [MPCodeWriter21/PDF-To-Image](https://github.com/MPCodeWriter21/PDF-To-Image)
+
+Donations
+---------
+
+Your donations are very welcome: [nowpayments.io](https://nowpayments.io/donation/MehradP21)
+
+You can also consider donating a
+[Star](https://github.com/MPCodeWriter21/PDF-Helper) to the repo.
 
 License
 -------
