@@ -28,7 +28,7 @@ Usage
 
 ### Install requirements
 
-+ Install the most recent version of python for your operating system. Visit [python.org](https://python.org)
++ Install Python for your operating system. Visit [python.org](https://python.org)
 
 + Clone the repo:
 
@@ -51,7 +51,7 @@ python3 main.py merge -i <input_file_1> <input_file_2>... <input_file_n> -o <out
 
 # E.g. Merge PDFs 1, 2 and 3 into a new PDF
 python3 main.py merge -i 1.pdf 2.pdf 3.pdf -o new.pdf
-
+```
 
 ### Export PDF pages as image files
 
