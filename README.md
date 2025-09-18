@@ -78,7 +78,7 @@ python3 main.py to-image -i <input_file> -o <output_folder> \
         -p <page_number_1>,<page_number_2>,...,<page_number_n> -s <scale_factor>
 
 # E.g. Export pages 1, 2, 3 and 6 from a PDF with scale factor 1
-python3 main.py export-pages -i 1.pdf -o images -p 1-3,6 -s 1
+python3 main.py to-image -i 1.pdf -o images -p 1-3,6 -s 1
 
 # E.g. Export all pages from a PDF with scale 2
 python3 main.py to-image -i my-pdf.pdf -o my-images
@@ -115,7 +115,7 @@ python3 main.py image-to-pdf -i <image_1> <image_2> <image_3> ... -o <output_fil
 
 # E.g. Take 1.png, 2.jpg, and 3.png and create a PDF named 123.pdf and override
 # if already exists
-python3 main.py -i 1.png 2.jpg 3.png -o 123.pdf -f
+python3 main.py image-to-pdf -i 1.png 2.jpg 3.png -o 123.pdf -f
 ```
 
 About
