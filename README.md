@@ -62,7 +62,7 @@ uv run pdf-helper <command> [options]
 
 ### Bundle PDFs
 
-Merge multiple PDFs into one PDF:
+Bundle multiple files into one PDF:
 
 ```bash
 pdf-helper bundle <input_file_1> <input_file_2>... <input_file_n> <output_file>
