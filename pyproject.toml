@@ -1,6 +1,6 @@
 [project]
 name = "PDF-Helper"
-version = "0.2.0"
+version = "0.2.1"
 authors = [
   {name = "CodeWriter21(Mehrad Pooryoussof)", email = "CodeWriter21@gmail.com"}
 ]
@@ -9,7 +9,7 @@ readme = {file = "README.md", content-type = "text/markdown"}
 license = {text = "MIT", file = "LICENSE"}
 requires-python = ">=3.10"
 dependencies = [
-    "log21>=3.3.1",
+    "log21>=3.3.2",
     "pypdfium2>=4.30.0",
     "Pillow>=11.0.0"
 ]

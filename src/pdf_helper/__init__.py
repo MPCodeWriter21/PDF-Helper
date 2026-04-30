@@ -11,7 +11,7 @@ import pypdfium2 as pdfium
 from PIL import Image
 from pypdfium2 import PdfImage, PdfBitmap, PdfDocument
 
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 
 __all__ = [
     'bundle', 'merge_pdfs', 'remove_pages', 'pdf_to_image', 'extract_text',
