@@ -1,15 +1,15 @@
 [project]
 name = "PDF-Helper"
-version = "0.1.0"
+version = "0.2.0"
 authors = [
   {name = "CodeWriter21(Mehrad Pooryoussof)", email = "CodeWriter21@gmail.com"}
 ]
 description = "A simple python script that helps with doing simple stuff with PDFs."
 readme = {file = "README.md", content-type = "text/markdown"}
 license = {text = "MIT", file = "LICENSE"}
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 dependencies = [
-    "log21>=3.0.0",
+    "log21>=3.3.1",
     "pypdfium2>=4.30.0",
     "Pillow>=11.0.0"
 ]
@@ -41,7 +41,7 @@ wrap-descriptions = 88
 [tool.ruff]
 show-fixes = true
 exclude = ["migrations"]
-target-version = "py39"
+target-version = "py310"
 line-length = 88
 
 [tool.ruff.lint]

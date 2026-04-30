@@ -11,28 +11,28 @@ from pathlib import Path
 import log21
 from log21.colors import RED, GREEN, RESET
 
-from . import (split_pdf, merge_pdfs, extract_text, image_to_pdf, pdf_to_image,
-               remove_pages, watermark_pdf)
+from . import bundle, split_pdf, extract_text, pdf_to_image, remove_pages, watermark_pdf
 from .utils import parse_pages
 
 # yapf: ensable
 
-def merge_pdfs_entry_point(
+
+def bundle_entry_point(
     input_paths: Sequence[Path],
     output_path: Path,
     /,
     force: bool = False,
     verbose: bool = False
 ) -> None:
-    """Merge PDF files.
+    """Bundle multiple files into a single PDF file.
 
-    :param output_path: Path to write concatenated PDF file to.
-    :param input_paths: List of PDF files to concatenate.
+    :param input_paths: List of files to bundle. Can be PDF or image files.
+    :param output_path: Path to write bundled PDF file to.
     :param force: Force overwrite of output file.
     :param verbose: Print verbose output.
     """
-    if len(input_paths) < 2:
-        log21.critical('Must provide at least two input files.')
+    if len(input_paths) < 1:
+        log21.critical('Must provide at least one input file.')
         sys.exit(1)
     if output_path.exists() and not force:
         log21.critical('Output file already exists.')
@@ -48,10 +48,10 @@ def merge_pdfs_entry_point(
             log21.critical(f'Input file `{path}` does not exist.')
             sys.exit(1)
 
-    log21.info(f'Concatenating {len(input_paths)} files to {output_path}')
+    log21.info(f'Bundling {len(input_paths)} files to {output_path}...')
     try:
         with open(output_path, 'wb') as output_file:
-            merge_pdfs(input_paths, output_file)
+            bundle(input_paths, output_file)
     except PermissionError:
         log21.critical(
             f'Cannot write to output file `{output_path}`.\n'
@@ -252,47 +252,6 @@ def extract_text_entry_point(
     log21.info('\rDone!')
 
 
-def image_to_pdf_entry_point(
-    input_paths: Sequence[Path],
-    output_path: Path,
-    /,
-    force: bool = False,
-    verbose: bool = False
-) -> None:
-    """Convert images to a PDF file.
-
-    :param input_paths: List of images to convert.
-    :param output_path: Path to write PDF file to.
-    :param force: Force overwrite of output file.
-    :param verbose: Print verbose output.
-    """
-    if len(input_paths) < 1:
-        log21.critical('Must provide at least one input file.')
-        sys.exit(1)
-    if output_path.exists() and not force:
-        log21.critical('Output file already exists.')
-        sys.exit(1)
-    if verbose:
-        log21.basic_config(level=log21.INFO)
-
-    for path in input_paths:
-        if not path.exists():
-            log21.critical(f'Input file `{path}` does not exist.')
-            sys.exit(1)
-
-    log21.info(f'Converting {len(input_paths)} images to `{output_path}`...')
-    try:
-        with open(output_path, 'wb') as output_file:
-            image_to_pdf(input_paths, output_file)
-    except PermissionError:
-        log21.critical(
-            f'Cannot write to output file `{output_path}`.\n'
-            'Check the file permissions and close any applications that may be using '
-            'the file, then try again.'
-        )
-        sys.exit(1)
-
-
 def split_pdf_entry_point(
     input_path: Path,
     output_directory: Path,
@@ -404,12 +363,11 @@ def main() -> None:
         log21.basic_config(level=log21.ERROR)
         log21.argumentify(
             {
-                'merge': merge_pdfs_entry_point,
+                'bundle': bundle_entry_point,
                 'remove-pages': remove_pages_entry_point,
                 'to-image': pdf_to_image_entry_point,
                 'add-watermark': watermark_pdf_entry_point,
                 'extract-text': extract_text_entry_point,
-                'image-to-pdf': image_to_pdf_entry_point,
                 'split': split_pdf_entry_point
             }
         )

@@ -11,10 +11,68 @@ import pypdfium2 as pdfium
 from PIL import Image
 from pypdfium2 import PdfImage, PdfBitmap, PdfDocument
 
+__version__ = '0.2.0'
+
 __all__ = [
-    'merge_pdfs', 'remove_pages', 'pdf_to_image', 'extract_text', 'image_to_pdf',
-    'split_pdf', 'watermark_pdf'
+    'bundle', 'merge_pdfs', 'remove_pages', 'pdf_to_image', 'extract_text',
+    'image_to_pdf', 'split_pdf', 'watermark_pdf'
 ]
+
+
+def bundle(
+    input_files: Sequence[str | bytes | Path | os.PathLike[str] | io.BytesIO],
+    output_stream: str | Path | io.BytesIO | io.BufferedWriter
+) -> int:
+    """Bundle multiple files together.
+
+    :param input_files: List of files to bundle together. Each file can be a PDF or an
+        image. Supported image formats are those supported by Pillow.
+    :param output_stream: Output stream to write to.
+    :return: Number of pages in the bundled PDF.
+    """
+    writer = PdfDocument.new()
+    for input_file in input_files:
+        log21.info(f'Adding {input_file}...')
+        if isinstance(input_file, (str, bytes, Path, os.PathLike)):
+            if str(input_file).lower().endswith('.pdf'):
+                reader = PdfDocument(input_file)
+                writer.import_pages(reader)
+            else:
+                image = Image.open(input_file)
+                bitmap = PdfBitmap.from_pil(image)
+                pdf_image = PdfImage.new(writer)
+                pdf_image.set_bitmap(bitmap)
+                matrix = pdfium.PdfMatrix().scale(bitmap.width, bitmap.height)
+                pdf_image.set_matrix(matrix)
+                page = writer.new_page(bitmap.width, bitmap.height)
+                page.insert_obj(pdf_image)
+                page.gen_content()
+                page.close()
+                pdf_image.close()
+                bitmap.close()
+                image.close()
+        elif isinstance(input_file, io.BytesIO):
+            try:
+                reader = PdfDocument(input_file)
+                writer.import_pages(reader)
+            except Exception:
+                image = Image.open(input_file)
+                bitmap = PdfBitmap.from_pil(image)
+                pdf_image = PdfImage.new(writer)
+                pdf_image.set_bitmap(bitmap)
+                matrix = pdfium.PdfMatrix().scale(bitmap.width, bitmap.height)
+                pdf_image.set_matrix(matrix)
+                page = writer.new_page(bitmap.width, bitmap.height)
+                page.insert_obj(pdf_image)
+                page.gen_content()
+                page.close()
+                pdf_image.close()
+                bitmap.close()
+                image.close()
+        else:
+            raise ValueError(f'Unsupported input file type: {type(input_file)}')
+    writer.save(output_stream)
+    return len(writer)
 
 
 def merge_pdfs(
@@ -32,6 +90,41 @@ def merge_pdfs(
         log21.info(f'Adding {input_file}...')
         reader = PdfDocument(input_file)
         writer.import_pages(reader)
+    writer.save(output_stream)
+    return len(writer)
+
+
+def image_to_pdf(
+    input_files: Sequence[str | bytes | Path | os.PathLike[str] | io.BytesIO],
+    output_stream: str | Path | io.BytesIO | io.BufferedWriter
+) -> int:
+    """Convert images to a PDF file.
+
+    :param input_files: List of images to convert.
+    :param output_stream: Output stream to write to.
+    :return: Number of pages in the output PDF
+    """
+    writer = PdfDocument.new()
+    for input_file in input_files:
+        log21.info(f'Adding {input_file}...')
+        # Open the image file
+        image = Image.open(input_file)
+        # Create a bitmap from the image
+        bitmap = PdfBitmap.from_pil(image)
+        # Create a PdfImage object from the bitmap
+        pdf_image = PdfImage.new(writer)
+        pdf_image.set_bitmap(bitmap)
+        matrix = pdfium.PdfMatrix().scale(bitmap.width, bitmap.height)
+        pdf_image.set_matrix(matrix)
+        # Create a new page and insert the PdfImage object
+        page = writer.new_page(bitmap.width, bitmap.height)
+        page.insert_obj(pdf_image)
+        page.gen_content()
+        # Close the objects
+        page.close()
+        pdf_image.close()
+        bitmap.close()
+        image.close()
     writer.save(output_stream)
     return len(writer)
 
@@ -158,41 +251,6 @@ def extract_text(
         text = reversed_text
 
     return text
-
-
-def image_to_pdf(
-    input_files: Sequence[str | bytes | Path | os.PathLike[str] | io.BytesIO],
-    output_stream: str | Path | io.BytesIO | io.BufferedWriter
-) -> int:
-    """Convert images to a PDF file.
-
-    :param input_files: List of images to convert.
-    :param output_stream: Output stream to write to.
-    :return: Number of pages in the output PDF
-    """
-    writer = PdfDocument.new()
-    for input_file in input_files:
-        log21.info(f'Adding {input_file}...')
-        # Open the image file
-        image = Image.open(input_file)
-        # Create a bitmap from the image
-        bitmap = PdfBitmap.from_pil(image)
-        # Create a PdfImage object from the bitmap
-        pdf_image = PdfImage.new(writer)
-        pdf_image.set_bitmap(bitmap)
-        matrix = pdfium.PdfMatrix().scale(bitmap.width, bitmap.height)
-        pdf_image.set_matrix(matrix)
-        # Create a new page and insert the PdfImage object
-        page = writer.new_page(bitmap.width, bitmap.height)
-        page.insert_obj(pdf_image)
-        page.gen_content()
-        # Close the objects
-        page.close()
-        pdf_image.close()
-        bitmap.close()
-        image.close()
-    writer.save(output_stream)
-    return len(writer)
 
 
 def split_pdf(
