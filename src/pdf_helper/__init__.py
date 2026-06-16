@@ -11,7 +11,7 @@ import pypdfium2 as pdfium
 from PIL import Image
 from pypdfium2 import PdfImage, PdfBitmap, PdfDocument
 
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 __all__ = [
     'bundle', 'merge_pdfs', 'remove_pages', 'pdf_to_image', 'extract_text',
@@ -317,10 +317,12 @@ def watermark_pdf(
     opacity: float = 0.1,
     rotation: float = 45.0
 ) -> int:
-    """Split a PDF file into multiple files.
+    """Add a watermark to a PDF file.
 
-    :param input_file: PDF file to split.
-    :param output_file:
+    .. note:: This feature is planned for a future release and is not yet implemented.
+
+    :param input_file: PDF file to add watermark to.
+    :param output_file: Path to write watermarked PDF file to.
     :param watermark_text: Text to use as watermark.
     :param position: Position of watermark. One of 'center' or '50% 50%', 'top-left' or
         '0% 0%', 'top-right' or '100% 0%', 'bottom-left' or '0% 100%', etc.
@@ -331,22 +333,7 @@ def watermark_pdf(
     :param rotation: Rotation of watermark text in degrees.
     :return: Number of pages split.
     """
-    if isinstance(input_file, str):
-        input_file = Path(input_file)
-    if isinstance(output_file, str):
-        output_file = Path(output_file)
-    if len(watermark_text) == 0:
-        raise ValueError('Watermark text cannot be empty.')
-    if font_size < 1:
-        raise ValueError('Font size must be at least 1.')
-    if opacity < 0.0 or opacity > 1.0:
-        raise ValueError('Opacity must be between 0.0 and 1.0.')
-
-    pdf = pdfium.PdfDocument(input_file)
-    watermark = pdfium.PdfDocument.new()
-    _page = watermark.new_page(512, 512)
-    for i, _page in enumerate(pdf):
-        log21.info(f'Adding watermark to page {i + 1}...', end='\r')
-    log21.info('\rDone!')
-    pdf.save(output_file)
-    return len(pdf)
+    raise NotImplementedError(
+        'Watermark feature is not yet implemented. '
+        'It is planned for a future release.'
+    )

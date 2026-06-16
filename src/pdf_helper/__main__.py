@@ -343,6 +343,9 @@ def watermark_pdf_entry_point(
             f'Added watermark to {number_of_pages} page' +
             ('s' if number_of_pages > 1 else '') + '!'
         )
+    except NotImplementedError as e:
+        log21.critical(str(e))
+        sys.exit(1)
     except PermissionError:
         log21.critical(
             f'Cannot write to output file `{output_path}`.\n'
