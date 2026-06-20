@@ -358,6 +358,32 @@ def watermark_pdf_entry_point(
         sys.exit(1)
 
 
+def run_recipe_entry_point(
+    recipe_path: Path,
+    /,
+    force: bool = False,
+    verbose: bool = False
+) -> None:
+    """Run a PDF recipe file.
+
+    :param recipe_path: Path to a YAML recipe file.
+    :param force: Force overwrite of output files.
+    :param verbose: Print verbose output.
+    """
+    if not recipe_path.exists():
+        log21.critical(f'Recipe file `{recipe_path}` does not exist.')
+        sys.exit(1)
+    if verbose:
+        log21.basic_config(level=log21.INFO)
+
+    from .recipe import run_recipe as _run_recipe
+
+    if force:
+        os.environ['PDF_HELPER_RECIPE_FORCE'] = '1'
+
+    _run_recipe(recipe_path)
+
+
 def main() -> None:
     try:
         if sys.platform == 'win32':
@@ -371,7 +397,8 @@ def main() -> None:
                 'to-image': pdf_to_image_entry_point,
                 'add-watermark': watermark_pdf_entry_point,
                 'extract-text': extract_text_entry_point,
-                'split': split_pdf_entry_point
+                'split': split_pdf_entry_point,
+                'run-recipe': run_recipe_entry_point
             }
         )
     except KeyboardInterrupt:

@@ -1,0 +1,264 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/MPCodeWriter21/PDF-Helper/main/schemas/recipe-schema.json",
+  "title": "PDF-Helper Recipe",
+  "description": "JSON Schema for PDF-Helper recipe YAML files",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["steps"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for the recipe"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of what the recipe does"
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
+      "description": "Recipe format version"
+    },
+    "inputs": {
+      "type": "object",
+      "description": "Named inputs that can be referenced in steps via { input: name }",
+      "additionalProperties": {
+        "oneOf": [
+          { "type": "string" },
+          {
+            "type": "object",
+            "properties": {
+              "env": { "type": "string" },
+              "prompt": { "type": "string" }
+            },
+            "required": ["env"],
+            "additionalProperties": false
+          }
+        ]
+      }
+    },
+    "settings": {
+      "type": "object",
+      "description": "Global recipe settings",
+      "additionalProperties": false,
+      "properties": {
+        "temp_dir": {
+          "type": "string",
+          "description": "Directory for intermediate files (supports {temp_dir} in paths)",
+          "default": "./.recipe-tmp"
+        },
+        "overwrite": {
+          "type": "boolean",
+          "description": "Overwrite existing output files without error",
+          "default": false
+        },
+        "cleanup_temp": {
+          "type": "boolean",
+          "description": "Delete temp_dir after recipe completes",
+          "default": false
+        }
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Ordered list of operations to execute",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["operation"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Unique identifier for this step (used for step references)"
+          },
+          "operation": {
+            "type": "string",
+            "description": "PDF operation to perform",
+            "enum": [
+              "bundle",
+              "remove_pages",
+              "split_pdf",
+              "pdf_to_image",
+              "extract_text",
+              "watermark",
+              "encrypt",
+              "metadata"
+            ]
+          },
+          "input": {
+            "oneOf": [
+              {
+                "type": "string",
+                "description": "Path to input file"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "step": {
+                    "type": "string",
+                    "description": "ID of a previous step whose output to use"
+                  },
+                  "file": {
+                    "type": "string",
+                    "description": "Specific file name from a multi-file step output"
+                  }
+                },
+                "required": ["step"],
+                "additionalProperties": false
+              }
+            ]
+          },
+          "inputs": {
+            "type": "array",
+            "description": "Multiple input files (used by bundle operation)",
+            "items": {
+              "oneOf": [
+                { "type": "string" },
+                {
+                  "type": "object",
+                  "properties": {
+                    "path": {
+                      "type": "string",
+                      "description": "Path to input file"
+                    },
+                    "pages": {
+                      "oneOf": [
+                        { "type": "string", "description": "Page range string like '1-5,7'" },
+                        {
+                          "type": "array",
+                          "items": { "type": "integer" },
+                          "description": "List of 1-based page numbers"
+                        }
+                      ]
+                    }
+                  },
+                  "required": ["path"],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "output": {
+            "type": "string",
+            "description": "Path to output file (supports {temp_dir})"
+          },
+          "output_dir": {
+            "type": "string",
+            "description": "Output directory (used by split_pdf)"
+          },
+          "output_prefix": {
+            "type": "string",
+            "description": "Prefix for output filenames (used by split_pdf)"
+          },
+          "pages": {
+            "oneOf": [
+              { "type": "string", "description": "Page range string like '1-5,7'" },
+              {
+                "type": "array",
+                "items": { "type": "integer" },
+                "description": "List of 1-based page numbers"
+              }
+            ],
+            "description": "Pages to operate on (used by pdf_to_image, extract_text)"
+          },
+          "pages_to_remove": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "description": "1-based page indices to remove (used by remove_pages)"
+          },
+          "scale": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Scale factor for image output (used by pdf_to_image)",
+            "default": 2
+          },
+          "split_points": {
+            "type": "array",
+            "items": { "type": "integer" },
+            "description": "Page boundaries for splitting (used by split_pdf)"
+          },
+          "max_characters": {
+            "type": "integer",
+            "description": "Maximum characters to extract (used by extract_text)",
+            "default": -1
+          },
+          "reverse_lines": {
+            "type": "boolean",
+            "description": "Reverse character order per line, useful for Persian text (used by extract_text)",
+            "default": false
+          },
+          "text": {
+            "type": "string",
+            "description": "Watermark text content (used by watermark)"
+          },
+          "position": {
+            "type": "string",
+            "description": "Watermark position like 'center', 'top-left', '50% 50%' (used by watermark)",
+            "default": "center"
+          },
+          "opacity": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1,
+            "description": "Watermark opacity 0.0-1.0 (used by watermark)",
+            "default": 0.1
+          },
+          "rotation": {
+            "type": "number",
+            "description": "Watermark rotation in degrees (used by watermark)",
+            "default": 45.0
+          },
+          "font_size": {
+            "type": "integer",
+            "description": "Watermark font size (used by watermark)",
+            "default": 36
+          },
+          "password": {
+            "oneOf": [
+              { "type": "string" },
+              {
+                "type": "object",
+                "description": "Reference a named input for the password",
+                "properties": {
+                  "input": {
+                    "type": "string",
+                    "description": "Name of the input to use as password"
+                  }
+                },
+                "required": ["input"],
+                "additionalProperties": false
+              }
+            ],
+            "description": "Encryption password (used by encrypt)"
+          },
+          "algorithm": {
+            "type": "string",
+            "description": "Encryption algorithm (used by encrypt)",
+            "default": "AES-256"
+          },
+          "permissions": {
+            "type": "object",
+            "description": "Document permissions after encryption (used by encrypt)",
+            "additionalProperties": false,
+            "properties": {
+              "printing": { "type": "boolean" },
+              "copying": { "type": "boolean" },
+              "modifying": { "type": "boolean" }
+            }
+          },
+          "title": { "type": "string", "description": "PDF title metadata (used by metadata)" },
+          "author": { "type": "string", "description": "PDF author metadata (used by metadata)" },
+          "subject": { "type": "string", "description": "PDF subject metadata (used by metadata)" },
+          "keywords": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "PDF keywords metadata (used by metadata)"
+          },
+          "producer": { "type": "string", "description": "PDF producer metadata (used by metadata)" }
+        }
+      }
+    }
+  }
+}

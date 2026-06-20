@@ -11,11 +11,11 @@ import pypdfium2 as pdfium
 from PIL import Image
 from pypdfium2 import PdfImage, PdfBitmap, PdfDocument
 
-__version__ = '0.2.2'
+__version__ = '0.3.0'
 
 __all__ = [
     'bundle', 'merge_pdfs', 'remove_pages', 'pdf_to_image', 'extract_text',
-    'image_to_pdf', 'split_pdf', 'watermark_pdf'
+    'image_to_pdf', 'split_pdf', 'watermark_pdf', 'encrypt_pdf', 'set_metadata'
 ]
 
 
@@ -37,6 +37,7 @@ def bundle(
             if str(input_file).lower().endswith('.pdf'):
                 reader = PdfDocument(input_file)
                 writer.import_pages(reader)
+                reader.close()
             else:
                 image = Image.open(input_file)
                 bitmap = PdfBitmap.from_pil(image)
@@ -147,7 +148,10 @@ def remove_pages(
     pages_to_add = [i for i in range(len(reader)) if i not in pages_to_remove]
     writer.import_pages(reader, pages_to_add)
     writer.save(output_stream, version=reader.get_version())
-    return len(reader) - len(pages_to_add)
+    writer.close()
+    pages_removed = len(reader) - len(pages_to_add)
+    reader.close()
+    return pages_removed
 
 
 def pdf_to_image(
@@ -305,6 +309,7 @@ def split_pdf(
         finally:
             writer.close()
 
+    pdf.close()
     return len(split_points) - 1
 
 
@@ -335,5 +340,47 @@ def watermark_pdf(
     """
     raise NotImplementedError(
         'Watermark feature is not yet implemented. '
+        'It is planned for a future release.'
+    )
+
+
+def encrypt_pdf(
+    input_file: str | Path | io.BytesIO | io.TextIOWrapper,
+    output_file: str | Path,
+    password: str,
+    algorithm: str = 'AES-256'
+) -> int:
+    """Encrypt a PDF file with a password.
+
+    .. note:: This feature is planned for a future release and is not yet implemented.
+
+    :param input_file: PDF file to encrypt.
+    :param output_file: Path to write encrypted PDF to.
+    :param password: Password to encrypt the PDF with.
+    :param algorithm: Encryption algorithm to use. Default is 'AES-256'.
+    :return: Number of pages in the encrypted PDF.
+    """
+    raise NotImplementedError(
+        'Encryption feature is not yet implemented. '
+        'It is planned for a future release.'
+    )
+
+
+def set_metadata(
+    input_file: str | Path | io.BytesIO | io.TextIOWrapper,
+    output_file: str | Path,
+    metadata: dict,
+) -> int:
+    """Set metadata on a PDF file.
+
+    .. note:: This feature is planned for a future release and is not yet implemented.
+
+    :param input_file: PDF file to modify.
+    :param output_file: Path to write the modified PDF to.
+    :param metadata: Dictionary of metadata fields to set.
+    :return: Number of pages in the modified PDF.
+    """
+    raise NotImplementedError(
+        'Metadata feature is not yet implemented. '
         'It is planned for a future release.'
     )

@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=../../schemas/recipe-schema.json
+name: "Secure Report Publishing Workflow"
+description: >
+  A complete publishing pipeline:
+  1. Bundles selected pages from multiple reports
+  2. Adds a CONFIDENTIAL watermark across every page
+  3. Encrypts the output with a password
+  4. Sets author/title metadata
+  Combines existing, planned, and future features into a single orchestrated run.
+version: "1.0"
+
+inputs:
+  password:
+    env: PDF_PASSWORD
+    prompt: "Enter output PDF password"
+
+settings:
+  temp_dir: "./.recipe-tmp"
+
+steps:
+  - id: assemble
+    operation: bundle
+    inputs:
+      - cover-page.pdf
+      - path: executive-summary.pdf
+        pages: "1-3"
+      - path: financial-report.pdf
+        pages: [1, 2, 3, 5, 7, 10, 11, 12]
+    output: "{temp_dir}/assembled.pdf"
+
+  - id: watermark
+    operation: watermark
+    input:
+      step: assemble
+    text: "CONFIDENTIAL"
+    position: center
+    opacity: 0.15
+    rotation: 30.0
+    font_size: 48
+    output: "{temp_dir}/watermarked.pdf"
+
+  - id: encrypt
+    operation: encrypt
+    input:
+      step: watermark
+    password:
+      input: password
+    algorithm: AES-256
+    permissions:
+      printing: false
+      copying: false
+      modifying: false
+    output: "{temp_dir}/encrypted.pdf"
+
+  - id: set_metadata
+    operation: metadata
+    input:
+      step: encrypt
+    title: "Annual Financial Report 2026"
+    author: "Finance Department"
+    subject: "Q4 Financial Summary"
+    keywords: ["finance", "annual", "2026", "confidential"]
+    producer: "PDF-Helper Recipe System v1.0"
+    output: final-report.pdf

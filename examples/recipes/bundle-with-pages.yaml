@@ -1,0 +1,18 @@
+# yaml-language-server: $schema=../../schemas/recipe-schema.json
+name: "Bundle with Page Selection"
+description: "Bundles specific pages from multiple PDFs together with images into a single PDF. Page selection per file is not available through the CLI."
+version: "1.0"
+
+steps:
+  - id: assemble
+    operation: bundle
+    inputs:
+      - cover.pdf
+      - path: chapter-1.pdf
+        pages: [1, 2, 3]
+      - logo.png
+      - path: chapter-2.pdf
+        pages: "1-5,8,10-12"
+      - path: appendix.pdf
+        pages: [1, 3, 5]
+    output: compiled.pdf

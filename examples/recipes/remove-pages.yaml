@@ -1,0 +1,11 @@
+# yaml-language-server: $schema=../../schemas/recipe-schema.json
+name: "Remove Specific Pages"
+description: "Removes a set of pages (1-based) from a PDF and writes the result."
+version: "1.0"
+
+steps:
+  - id: clean
+    operation: remove_pages
+    input: document.pdf
+    pages_to_remove: [2, 4, 6]
+    output: cleaned.pdf
