@@ -11,17 +11,25 @@ import pypdfium2 as pdfium
 from PIL import Image
 from pypdfium2 import PdfImage, PdfBitmap, PdfDocument
 
-__version__ = '0.3.0'
+__version__ = "0.3.0"
 
 __all__ = [
-    'bundle', 'merge_pdfs', 'remove_pages', 'pdf_to_image', 'extract_text',
-    'image_to_pdf', 'split_pdf', 'watermark_pdf', 'encrypt_pdf', 'set_metadata'
+    "bundle",
+    "merge_pdfs",
+    "remove_pages",
+    "pdf_to_image",
+    "extract_text",
+    "image_to_pdf",
+    "split_pdf",
+    "watermark_pdf",
+    "encrypt_pdf",
+    "set_metadata",
 ]
 
 
 def bundle(
     input_files: Sequence[str | bytes | Path | os.PathLike[str] | io.BytesIO],
-    output_stream: str | Path | io.BytesIO | io.BufferedWriter
+    output_stream: str | Path | io.BytesIO | io.BufferedWriter,
 ) -> int:
     """Bundle multiple files together.
 
@@ -32,9 +40,9 @@ def bundle(
     """
     writer = PdfDocument.new()
     for input_file in input_files:
-        log21.info(f'Adding {input_file}...')
+        log21.info(f"Adding {input_file}...")
         if isinstance(input_file, (str, bytes, Path, os.PathLike)):
-            if str(input_file).lower().endswith('.pdf'):
+            if str(input_file).lower().endswith(".pdf"):
                 reader = PdfDocument(input_file)
                 writer.import_pages(reader)
                 reader.close()
@@ -71,14 +79,14 @@ def bundle(
                 bitmap.close()
                 image.close()
         else:
-            raise ValueError(f'Unsupported input file type: {type(input_file)}')
+            raise ValueError(f"Unsupported input file type: {type(input_file)}")
     writer.save(output_stream)
     return len(writer)
 
 
 def merge_pdfs(
     input_files: Sequence[str | Path | io.TextIOWrapper],
-    output_stream: str | Path | io.BytesIO | io.BufferedWriter
+    output_stream: str | Path | io.BytesIO | io.BufferedWriter,
 ) -> int:
     """Merge PDF files.
 
@@ -88,7 +96,7 @@ def merge_pdfs(
     """
     writer = PdfDocument.new()
     for input_file in input_files:
-        log21.info(f'Adding {input_file}...')
+        log21.info(f"Adding {input_file}...")
         reader = PdfDocument(input_file)
         writer.import_pages(reader)
     writer.save(output_stream)
@@ -97,7 +105,7 @@ def merge_pdfs(
 
 def image_to_pdf(
     input_files: Sequence[str | bytes | Path | os.PathLike[str] | io.BytesIO],
-    output_stream: str | Path | io.BytesIO | io.BufferedWriter
+    output_stream: str | Path | io.BytesIO | io.BufferedWriter,
 ) -> int:
     """Convert images to a PDF file.
 
@@ -107,7 +115,7 @@ def image_to_pdf(
     """
     writer = PdfDocument.new()
     for input_file in input_files:
-        log21.info(f'Adding {input_file}...')
+        log21.info(f"Adding {input_file}...")
         # Open the image file
         image = Image.open(input_file)
         # Create a bitmap from the image
@@ -133,7 +141,7 @@ def image_to_pdf(
 def remove_pages(
     input_file: str | Path | io.BytesIO | io.TextIOWrapper,
     pages_to_remove: Collection[int],
-    output_stream: str | Path | io.BytesIO | io.BufferedWriter
+    output_stream: str | Path | io.BytesIO | io.BufferedWriter,
 ) -> int:
     """Remove pages from a PDF file.
 
@@ -158,7 +166,7 @@ def pdf_to_image(
     input_file: str | Path,
     output_directory: str | Path,
     pages_to_convert: Optional[Collection[int]] = None,
-    scale: int = 2
+    scale: int = 2,
 ) -> int:
     """Convert a PDF file to a series of images.
 
@@ -175,21 +183,21 @@ def pdf_to_image(
         output_directory.mkdir(parents=True)
 
     pdf = pdfium.PdfDocument(input_file)
-    name = input_file.name.rsplit('.', maxsplit=1)[0]
+    name = input_file.name.rsplit(".", maxsplit=1)[0]
     # Number of digits each number in the filename should have
     length = len(str(len(pdf)))
     if not pages_to_convert:
         for i, page in enumerate(pdf, start=1):
-            log21.info(f'Converting page {i}...', end='\r')
+            log21.info(f"Converting page {i}...", end="\r")
             image = page.render(scale=scale).to_pil()
-            image.save(output_directory / f'{name}-{i:0>{length}}.png')
+            image.save(output_directory / f"{name}-{i:0>{length}}.png")
         return len(pdf)
     for i, page in enumerate(pdf, start=1):
         if i not in pages_to_convert:
             continue
-        log21.info(f'Converting page {i}...', end='\r')
+        log21.info(f"Converting page {i}...", end="\r")
         image = page.render(scale=scale).to_pil()
-        image.save(output_directory / f'{name}-{i:0>{length}}.png')
+        image.save(output_directory / f"{name}-{i:0>{length}}.png")
     return len(pages_to_convert)
 
 
@@ -197,7 +205,7 @@ def extract_text(
     input_file: str | Path | io.BytesIO | io.TextIOWrapper,
     pages_to_extract_from: Optional[Collection[int]] = None,
     max_number_of_characters: int = -1,
-    reverse_lines: bool = False
+    reverse_lines: bool = False,
 ) -> str:
     """Extract text from a PDF file.
 
@@ -208,27 +216,28 @@ def extract_text(
     :return: Extracted text.
     """
     pdf = pdfium.PdfDocument(input_file)
-    text = ''
+    text = ""
     if pages_to_extract_from:
         pages_to_extract_from = sorted(pages_to_extract_from)
         if pages_to_extract_from[0] < 1:
-            log21.critical('Pages must be >= 1')
+            log21.critical("Pages must be >= 1")
             sys.exit(1)
         if pages_to_extract_from[-1] > len(pdf):
             log21.critical(
-                f'Page {pages_to_extract_from[-1]} does not exist in `{input_file}`'
+                f"Page {pages_to_extract_from[-1]} does not exist in `{input_file}`"
             )
             sys.exit(1)
         log21.info(
-            f'Extracting text from {len(pages_to_extract_from)} page' +
-            ('s' if len(pages_to_extract_from) > 1 else '') + f' from `{input_file}`...'
+            f"Extracting text from {len(pages_to_extract_from)} page"
+            + ("s" if len(pages_to_extract_from) > 1 else "")
+            + f" from `{input_file}`..."
         )
         count = max_number_of_characters
         for i, page in enumerate(pdf):
             i = i + 1
             if i not in pages_to_extract_from:
                 continue
-            log21.info(f'Extracting text from page {i}...', end='\r')
+            log21.info(f"Extracting text from page {i}...", end="\r")
             text += page.get_textpage().get_text_range(count=count)
             if count == 0:
                 break
@@ -242,16 +251,16 @@ def extract_text(
                 break
             if count > 0:
                 count = max_number_of_characters - len(text)
-            text += '\n'
-    log21.info('\rDone!')
+            text += "\n"
+    log21.info("\rDone!")
 
     if reverse_lines:
-        reversed_text = ''
-        log21.info('Reversing the lines...', end='\r')
+        reversed_text = ""
+        log21.info("Reversing the lines...", end="\r")
         for i, line in enumerate(text.split(os.linesep), start=1):
-            log21.info('Reversing line %d...', args=(i, ), end='\r')
-            reversed_text += ''.join(reversed(line)) + os.linesep
-        log21.info('\rReversed every line!')
+            log21.info("Reversing line %d...", args=(i,), end="\r")
+            reversed_text += "".join(reversed(line)) + os.linesep
+        log21.info("\rReversed every line!")
         text = reversed_text
 
     return text
@@ -260,7 +269,7 @@ def extract_text(
 def split_pdf(
     input_file: str | Path,
     output_directory: str | Path,
-    split_points: Optional[Collection[int]] = None
+    split_points: Optional[Collection[int]] = None,
 ) -> int:
     """Split a PDF file into multiple files.
 
@@ -287,23 +296,23 @@ def split_pdf(
         end = split_points[i + 1]
         if start < 0 or end > len(pdf):
             log21.warning(
-                f'Split points {start + 1} to {end} are out of bounds for '
-                f'input file `{input_file}`.'
+                f"Split points {start + 1} to {end} are out of bounds for "
+                f"input file `{input_file}`."
             )
             continue
 
-        log21.info(f'Splitting pages {start + 1} to {end}...')
+        log21.info(f"Splitting pages {start + 1} to {end}...")
         writer = PdfDocument.new()
         writer.import_pages(pdf, range(start, end))
-        output_file = output_directory / f'{input_file.stem}_part_{i + 1}.pdf'
+        output_file = output_directory / f"{input_file.stem}_part_{i + 1}.pdf"
         try:
             writer.save(output_file)
-            log21.info(f'Saved split file to {output_file}')
+            log21.info(f"Saved split file to {output_file}")
         except PermissionError:
             log21.critical(
-                f'Cannot write to output file `{output_file}`.\n'
-                'Check the file permissions and close any applications that may be '
-                'using the file, then try again.'
+                f"Cannot write to output file `{output_file}`.\n"
+                "Check the file permissions and close any applications that may be "
+                "using the file, then try again."
             )
             sys.exit(1)
         finally:
@@ -317,10 +326,10 @@ def watermark_pdf(
     input_file: str | Path | io.BytesIO | io.TextIOWrapper,
     output_file: str | Path,
     watermark_text: str,
-    position: str = 'center',
+    position: str = "center",
     font_size: int = 36,
     opacity: float = 0.1,
-    rotation: float = 45.0
+    rotation: float = 45.0,
 ) -> int:
     """Add a watermark to a PDF file.
 
@@ -339,8 +348,7 @@ def watermark_pdf(
     :return: Number of pages split.
     """
     raise NotImplementedError(
-        'Watermark feature is not yet implemented. '
-        'It is planned for a future release.'
+        "Watermark feature is not yet implemented. It is planned for a future release."
     )
 
 
@@ -348,7 +356,7 @@ def encrypt_pdf(
     input_file: str | Path | io.BytesIO | io.TextIOWrapper,
     output_file: str | Path,
     password: str,
-    algorithm: str = 'AES-256'
+    algorithm: str = "AES-256",
 ) -> int:
     """Encrypt a PDF file with a password.
 
@@ -361,8 +369,7 @@ def encrypt_pdf(
     :return: Number of pages in the encrypted PDF.
     """
     raise NotImplementedError(
-        'Encryption feature is not yet implemented. '
-        'It is planned for a future release.'
+        "Encryption feature is not yet implemented. It is planned for a future release."
     )
 
 
@@ -381,6 +388,5 @@ def set_metadata(
     :return: Number of pages in the modified PDF.
     """
     raise NotImplementedError(
-        'Metadata feature is not yet implemented. '
-        'It is planned for a future release.'
+        "Metadata feature is not yet implemented. It is planned for a future release."
     )

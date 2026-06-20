@@ -111,12 +111,7 @@ def test_resolve_inputs_env_missing_with_prompt(
     ctx = Context(
         {
             "steps": [],
-            "inputs": {
-                "password": {
-                    "env": "MISSING_VAR",
-                    "prompt": "Enter pass:"
-                }
-            },
+            "inputs": {"password": {"env": "MISSING_VAR", "prompt": "Enter pass:"}},
         }
     )
     assert ctx.resolved_inputs["password"] == "typed_pass"
@@ -147,13 +142,7 @@ def test_cleanup_removes_temp_dir(tmp_path: Path) -> None:
     td.mkdir()
     (td / "file.pdf").write_text("data")
     ctx = Context(
-        {
-            "steps": [],
-            "settings": {
-                "temp_dir": str(td),
-                "cleanup_temp": True
-            }
-        }
+        {"steps": [], "settings": {"temp_dir": str(td), "cleanup_temp": True}}
     )
     ctx.cleanup()
     assert not td.exists()
@@ -195,10 +184,7 @@ def test_handle_bundle_mixed(test_pdf: Path, tmp_path: Path) -> None:
     ctx = Context({"steps": [], "settings": {}})
     out = tmp_path / "out.pdf"
     step = {
-        "inputs": [str(test_pdf), {
-            "path": str(test_pdf),
-            "pages": [1, 2]
-        }],
+        "inputs": [str(test_pdf), {"path": str(test_pdf), "pages": [1, 2]}],
         "output": str(out),
     }
     result = _handle_bundle(ctx, step)
@@ -212,10 +198,7 @@ def test_handle_bundle_mixed(test_pdf: Path, tmp_path: Path) -> None:
 def test_handle_bundle_invalid_input(test_pdf: Path) -> None:
     ctx = Context({"steps": [], "settings": {}})
     step = {
-        "inputs": [{
-            "path": str(test_pdf),
-            "pages": [1]
-        }, 42],
+        "inputs": [{"path": str(test_pdf), "pages": [1]}, 42],
         "output": str(test_pdf.parent / "out.pdf"),
     }
     with pytest.raises(RecipeError, match="Invalid bundle"):
@@ -355,8 +338,7 @@ def test_all_operations_registered() -> None:
 def test_run_recipe_success(test_pdf: Path, tmp_path: Path) -> None:
     out = tmp_path / "cleaned.pdf"
     recipe = {
-        "name":
-        "test",
+        "name": "test",
         "steps": [
             {
                 "id": "clean",
@@ -376,8 +358,7 @@ def test_run_recipe_multiple_steps(test_pdf: Path, tmp_path: Path) -> None:
     mid = tmp_path / "mid.pdf"
     final = tmp_path / "final.pdf"
     recipe = {
-        "name":
-        "chain",
+        "name": "chain",
         "steps": [
             {
                 "id": "a",
@@ -389,9 +370,7 @@ def test_run_recipe_multiple_steps(test_pdf: Path, tmp_path: Path) -> None:
             {
                 "id": "b",
                 "operation": "remove_pages",
-                "input": {
-                    "step": "a"
-                },
+                "input": {"step": "a"},
                 "pages_to_remove": [1],
                 "output": str(final),
             },
@@ -466,10 +445,7 @@ def test_run_recipe_unknown_operation(tmp_path: Path) -> None:
 def test_run_recipe_cleanup_on_success(test_pdf: Path, tmp_path: Path) -> None:
     td = tmp_path / "recipe-tmp"
     recipe = {
-        "settings": {
-            "temp_dir": str(td),
-            "cleanup_temp": True
-        },
+        "settings": {"temp_dir": str(td), "cleanup_temp": True},
         "steps": [
             {
                 "operation": "remove_pages",
@@ -488,14 +464,8 @@ def test_run_recipe_cleanup_on_failure(tmp_path: Path) -> None:
     td = tmp_path / "recipe-tmp"
     td.mkdir()
     recipe = {
-        "settings": {
-            "temp_dir": str(td),
-            "cleanup_temp": True
-        },
-        "steps": [{
-            "operation": "nonexistent",
-            "output": str(td / "out.pdf")
-        }],
+        "settings": {"temp_dir": str(td), "cleanup_temp": True},
+        "steps": [{"operation": "nonexistent", "output": str(td / "out.pdf")}],
     }
     p = make_recipe(recipe, tmp_path)
     with pytest.raises(SystemExit):

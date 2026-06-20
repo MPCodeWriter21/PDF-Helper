@@ -1,19 +1,12 @@
-default_language_version:
-    python: python3.11
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v3.2.0
     hooks:
-    -   id: trailing-whitespace
-    -   id: check-yaml
-    -   id: check-added-large-files
+      - id: trailing-whitespace
+      - id: check-yaml
+      - id: check-added-large-files
 
   # Python-specific hooks
-  - repo: https://github.com/google/yapf
-    rev: v0.40.2
-    hooks:
-      - id: yapf
-        args: ['-i', '-m']
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
@@ -24,11 +17,30 @@ repos:
       - id: docformatter
         args: [-i, -d, --config, pyproject.toml]
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.6.7
+    rev: v0.15.18
     hooks:
-      - id: ruff
+      - id: ruff-check
+      - id: ruff-format
   - repo: https://github.com/netromdk/vermin
-    rev: v1.6.0
+    rev: v1.8.0
     hooks:
       - id: vermin
-        args: ['--lint', '--no-make-paths-absolute', '--eval-annotations', '--backport', 'argparse', '--backport', 'typing', '--backport', 'asyncio', '--backport', 'dataclasses', '--backport', 'enum', '-t=3.11-', '--violations', '--no-tips']
+        args:
+          [
+            "--lint",
+            "--no-make-paths-absolute",
+            "--eval-annotations",
+            "--backport",
+            "argparse",
+            "--backport",
+            "typing",
+            "--backport",
+            "asyncio",
+            "--backport",
+            "dataclasses",
+            "--backport",
+            "enum",
+            "-t=3.10-",
+            "--violations",
+            "--no-tips",
+          ]

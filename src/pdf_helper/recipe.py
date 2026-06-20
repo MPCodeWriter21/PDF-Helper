@@ -32,7 +32,6 @@ def _load(path: str | Path) -> dict:
 
 
 class Context:
-
     def __init__(self, recipe: dict) -> None:
         self.recipe = recipe
         self.settings = recipe.get("settings", {})
@@ -87,7 +86,7 @@ class Context:
                 shutil.rmtree(td, ignore_errors=True)
 
 
-# ── Handlers ────────────────────────────────────────────────────────
+# Handlers
 
 
 def _handle_bundle(ctx: Context, step: dict) -> str:
@@ -259,7 +258,8 @@ def _handle_metadata(ctx: Context, step: dict) -> str:
     output = ctx.resolve(step["output"])
     meta = {
         k: step[k]
-        for k in ("title", "author", "subject", "keywords", "producer") if k in step
+        for k in ("title", "author", "subject", "keywords", "producer")
+        if k in step
     }
 
     ctx.ensure_parent(output)
@@ -274,7 +274,7 @@ def _handle_metadata(ctx: Context, step: dict) -> str:
     return str(output)
 
 
-# ── Registry ────────────────────────────────────────────────────────
+# Registry
 
 OPERATIONS = {
     "bundle": _handle_bundle,
