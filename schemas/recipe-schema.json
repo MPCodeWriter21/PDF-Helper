@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://raw.githubusercontent.com/MPCodeWriter21/PDF-Helper/main/schemas/recipe-schema.json",
+  "$id": "https://raw.githubusercontent.com/MPCodeWriter21/PDF-Helper/master/schemas/recipe-schema.json",
   "title": "PDF-Helper Recipe",
   "description": "JSON Schema for PDF-Helper recipe YAML files",
   "type": "object",

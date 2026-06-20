@@ -185,6 +185,7 @@ logs a warning and copies the input file through, so pipelines don't break.
 #### Advanced Example: Multi-step Pipeline
 
 ```yaml
+# yaml-language-server: $schema=https://raw.githubusercontent.com/MPCodeWriter21/PDF-Helper/master/schemas/recipe-schema.json
 name: "Split, Convert, and Extract Pipeline"
 version: "1.0"
 
