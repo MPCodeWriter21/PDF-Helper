@@ -11,6 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v2
@@ -26,14 +28,25 @@ jobs:
         run: |
           uv build
           pip install dist/*.whl
-          echo "PACKAGE_VERSION=$(pip show pdf-helper | grep '^Version: ' | cut -d ' ' -f 2)" >> $GITHUB_ENV
 
       - name: check-version
-        uses: KyoriPowered/action-regex-match@v3
         id: check-version
-        with:
-          text: ${{ env.PACKAGE_VERSION }}
-          regex: '\d+\.\d+\.\d+a\d+'
+        run: |
+          version=$(pip show pdf-helper | grep '^Version: ' | cut -d ' ' -f 2)
+          echo "PACKAGE_VERSION=$version" >> $GITHUB_ENV
+          echo "version=$version" >> $GITHUB_OUTPUT
+          # Alpha check
+          if echo "$version" | grep -qP '\d+\.\d+\.\d+a\d+'; then
+            echo "is_alpha=$version" >> $GITHUB_OUTPUT
+          else
+            echo "is_alpha=" >> $GITHUB_OUTPUT
+          fi
+          # Version-changed check
+          if git tag --list | grep -qF "$version"; then
+            echo "version_changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "version_changed=true" >> $GITHUB_OUTPUT
+          fi
 
       - uses: actions/upload-artifact@v7
         with:
@@ -41,14 +54,15 @@ jobs:
           path: dist/
 
     outputs:
-      version: ${{ env.PACKAGE_VERSION }}
-      is_alpha: ${{ steps.check-version.outputs.match }}
+      version: ${{ steps.check-version.outputs.version }}
+      is_alpha: ${{ steps.check-version.outputs.is_alpha }}
+      version_changed: ${{ steps.check-version.outputs.version_changed }}
 
   release:
     name: Auto Release
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ needs.build.outputs.is_alpha == '' }}
+    if: ${{ needs.build.outputs.is_alpha == '' && needs.build.outputs.version_changed == 'true' }}
     steps:
       - uses: actions/download-artifact@v8
         with:
@@ -59,7 +73,7 @@ jobs:
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "${{ needs.build.outputs.version }}"
-          title: "Auto Build"
+          title: "v${{ needs.build.outputs.version }}"
           files: |
             dist/*
 
@@ -67,7 +81,7 @@ jobs:
     name: Publish to PyPI
     runs-on: ubuntu-latest
     needs: build
-    if: ${{ needs.build.outputs.is_alpha == '' }}
+    if: ${{ needs.build.outputs.is_alpha == '' && needs.build.outputs.version_changed == 'true' }}
     steps:
       - uses: actions/download-artifact@v8
         with:
