@@ -13,6 +13,7 @@ from log21.colors import RED, GREEN, RESET
 
 from . import bundle, split_pdf, extract_text, pdf_to_image, remove_pages, watermark_pdf
 from .utils import parse_pages
+from .recipe import run_recipe
 
 # yapf: ensable
 
@@ -376,12 +377,10 @@ def run_recipe_entry_point(
     if verbose:
         log21.basic_config(level=log21.INFO)
 
-    from .recipe import run_recipe as _run_recipe
-
     if force:
         os.environ['PDF_HELPER_RECIPE_FORCE'] = '1'
 
-    _run_recipe(recipe_path)
+    run_recipe(recipe_path)
 
 
 def main() -> None:

@@ -11,7 +11,7 @@ import pypdfium2 as pdfium
 from PIL import Image
 from pypdfium2 import PdfImage, PdfBitmap, PdfDocument
 
-__version__ = "0.3.0"
+__version__ = "0.3.1"
 
 __all__ = [
     "bundle",
@@ -186,19 +186,22 @@ def pdf_to_image(
     name = input_file.name.rsplit(".", maxsplit=1)[0]
     # Number of digits each number in the filename should have
     length = len(str(len(pdf)))
-    if not pages_to_convert:
+    try:
+        if not pages_to_convert:
+            for i, page in enumerate(pdf, start=1):
+                log21.info(f"Converting page {i}...", end="\r")
+                image = page.render(scale=scale).to_pil()
+                image.save(output_directory / f"{name}-{i:0>{length}}.png")
+            return len(pdf)
         for i, page in enumerate(pdf, start=1):
+            if i not in pages_to_convert:
+                continue
             log21.info(f"Converting page {i}...", end="\r")
             image = page.render(scale=scale).to_pil()
             image.save(output_directory / f"{name}-{i:0>{length}}.png")
-        return len(pdf)
-    for i, page in enumerate(pdf, start=1):
-        if i not in pages_to_convert:
-            continue
-        log21.info(f"Converting page {i}...", end="\r")
-        image = page.render(scale=scale).to_pil()
-        image.save(output_directory / f"{name}-{i:0>{length}}.png")
-    return len(pages_to_convert)
+        return len(pages_to_convert)
+    finally:
+        pdf.close()
 
 
 def extract_text(

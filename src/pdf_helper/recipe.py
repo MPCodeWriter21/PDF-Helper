@@ -81,9 +81,13 @@ class Context:
 
     def cleanup(self) -> None:
         if self.settings.get("cleanup_temp"):
+            log21.info("Cleaning up temporary files...")
             td = self.settings.get("temp_dir")
             if td and os.path.isdir(td):
-                shutil.rmtree(td, ignore_errors=True)
+                try:
+                    shutil.rmtree(td, ignore_errors=False)
+                except PermissionError as ex:
+                    log21.warning(f"Could not remove temp directory '{td}': {ex}")
 
 
 # Handlers
@@ -322,11 +326,11 @@ def run_recipe(recipe_path: str | Path) -> None:
             log21.info(f"[{step_id}] Done -> {result}")
 
         log21.info(f"Recipe '{name}' completed successfully!")
-    except RecipeError:
-        log21.critical(f"Recipe failed: {sys.exc_info()[1]}")
+    except RecipeError as ex:
+        log21.critical(f"Recipe failed: {ex}")
         sys.exit(1)
-    except Exception:
-        log21.critical(f"Unexpected error in recipe: {sys.exc_info()[1]}")
+    except Exception as ex:
+        log21.critical(f"Unexpected error in recipe: {ex.__class__.__name__}: {ex}")
         sys.exit(1)
     finally:
         ctx.cleanup()

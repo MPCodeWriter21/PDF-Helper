@@ -6,6 +6,15 @@ All notable changes to PDF-Helper will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+[0.3.1]
+-------
+
+### Fixed
+
+- Make sure `pdf_to_image()` closes the PDF file it opens, preventing file-lock issues
+  on Windows
+- Improve error handling for recipe cleanup and improve reporting
+
 [0.3.0]
 -------
 

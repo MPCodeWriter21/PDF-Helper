@@ -1,6 +1,6 @@
 [project]
 name = "PDF-Helper"
-version = "0.3.0"
+version = "0.3.1"
 authors = [
   {name = "CodeWriter21(Mehrad Pooryoussof)", email = "CodeWriter21@gmail.com"}
 ]
