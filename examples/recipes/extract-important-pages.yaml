@@ -1,0 +1,30 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/MPCodeWriter21/PDF-Helper/master/schemas/recipe-schema.json
+name: "Important Slides to Image"
+version: "1.0"
+
+steps:
+  # This step bundles the specified pages from each chapter PDF into a single PDF called "important-slides.pdf".
+  - id: assemble
+    operation: bundle
+    inputs:
+      - path: Chapter_1_V7_01.pdf
+        pages: [37, 38, 39, 40, 44, 45, 46, 52, 53, 54]
+      - path: Chapter_2_V7_01.pdf
+        pages: [6, 7, 8, 9, 15, 16, 22, 59, 60, 61]
+      - path: Chapter_3_V7_01.pdf
+        pages: [8, 9, 10, 11, 12, 13, 14, 46, 47, 52, 53, 58]
+      - path: Chapter_4_V7_01.pdf
+        pages: [5, 6, 12, 13, 14, 16, 17, 31, 32, 33, 34]
+      - path: Chapter_5_V7_01.pdf
+        pages: [13, 14, 15, 16, 20, 21, 22, 23, 29]
+      - path: Chapter_6_V7_01.pdf
+        pages: [18, 21, 22, 24, 25, 26, 29, 31, 35, 36, 37, 56, 57, 61, 70, 78]
+    output: "important-slides.pdf"
+
+  # This step converts the "important-slides.pdf" into high-resolution PNG images, which are saved in the "./important-images" directory.
+  - id: to_images
+    operation: pdf_to_image
+    input:
+      step: assemble
+    scale: 3
+    output: ./important-images

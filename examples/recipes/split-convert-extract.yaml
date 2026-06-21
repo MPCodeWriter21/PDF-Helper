@@ -3,9 +3,6 @@ name: "Split, Convert, and Extract Pipeline"
 description: "Splits a PDF at given points, converts the second chunk to PNG images, and extracts text from the first chunk — all in one recipe run."
 version: "1.0"
 
-settings:
-  temp_dir: "./.recipe-tmp"
-
 steps:
   - id: split
     operation: split_pdf
